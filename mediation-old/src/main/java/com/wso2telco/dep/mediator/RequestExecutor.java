@@ -589,7 +589,8 @@ public abstract class RequestExecutor {
 	 *            the authheader
 	 * @return the string
 	 */
-	protected String makeTokenrequest(String tokenurl, String urlParameters, String authheader, MessageContext messageContext) {
+	protected String makeTokenrequest(String tokenurl, String urlParameters, String authheader, MessageContext messageContext,
+									  String operator) {
 
 		ICallresponse icallresponse = null;
 		String retStr = "";
@@ -598,7 +599,7 @@ public abstract class RequestExecutor {
 		HttpURLConnection connection = null;
 
 		log.info("url : " + tokenurl + " | urlParameters : " + urlParameters + " | authheader : " + authheader
-			 + " Request ID: " + UID.getRequestID(messageContext));
+				+ " Request ID: " + UID.getRequestID(messageContext));
 
 		if ((tokenurl != null && tokenurl.length() > 0) && (urlParameters != null && urlParameters.length() > 0)
 				&& (authheader != null && authheader.length() > 0)) {
@@ -644,6 +645,10 @@ public abstract class RequestExecutor {
 				br.close();
 			} catch (Exception e) {
 				log.error("[WSRequestService ], makerequest, " + e.getMessage(), e);
+				if (operator != null) {
+					log.debug("Removing operator details for : " + operator);
+					operatorMap.remove(operator);
+				}
 				return null;
 			} finally {
 
@@ -1526,7 +1531,7 @@ public abstract class RequestExecutor {
 			String Strtoken = makeTokenrequest(operatorDetail.getTokenurl(),
 					"grant_type=refresh_token&refresh_token=" + operatorDetail.getRefreshtoken(),
 					("" + operatorDetail.getTokenauth()),
-					messageContext);
+					messageContext, operator);
 			if (Strtoken != null && Strtoken.length() > 0) {
 				if (log.isDebugEnabled()) {
 					log.debug("Token regeneration response of " + operatorDetail.getOperatorName() + " operator : " + Strtoken
